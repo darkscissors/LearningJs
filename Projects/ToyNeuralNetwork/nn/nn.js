@@ -1,7 +1,7 @@
 // Other techniques for learning
 
-class ActivationFunction {
-  constructor(func, dfunc) {
+class ActivationFunction{
+  constructor(func, dfunc){
     this.func = func;
     this.dfunc = dfunc;
   }
@@ -9,52 +9,55 @@ class ActivationFunction {
 
 let sigmoid = new ActivationFunction(
   x => 1 / (1 + Math.exp(-x)),
-  y => y * (1 - y)
+  y => y * (1- y)
 );
 
 let tanh = new ActivationFunction(
   x => Math.tanh(x),
-  y => 1 - (y * y)
+  y => 1-(y*y)
 );
 
+// returns a softmax probability distribution
+function softmax(vec) {
+  VEC = [];
+
+  //
+  for (var i = 0; i < vec.length; i++) {
+      VEC[i] = Math.pow(Math.E, vec[i]) / Summation(vec);
+  }
+
+  return VEC
+}
+
+// returns the summation of input vector
+function Summation(vec) {
+  final = 0;
+
+  for (var i = 0; i < vec.length; i++) {
+      final += Math.pow(Math.E, (vec[i]))
+  }
+
+  return final;
+}
 
 class NeuralNetwork {
-  /*
-  * if first argument is a NeuralNetwork the constructor clones it
-  * USAGE: cloned_nn = new NeuralNetwork(to_clone_nn);
-  */
-  constructor(in_nodes, hid_nodes, out_nodes) {
-    if (in_nodes instanceof NeuralNetwork) {
-      let a = in_nodes;
-      this.input_nodes = a.input_nodes;
-      this.hidden_nodes = a.hidden_nodes;
-      this.output_nodes = a.output_nodes;
+  constructor(input_nodes, hidden_nodes, output_nodes, learn_rate) {
+    this.input_nodes = input_nodes;
+    this.hidden_nodes = hidden_nodes;
+    this.output_nodes = output_nodes;
 
-      this.weights_ih = a.weights_ih.copy();
-      this.weights_ho = a.weights_ho.copy();
+    this.weights_ih = new Matrix(this.hidden_nodes, this.input_nodes);
+    this.weights_ho = new Matrix(this.output_nodes, this.hidden_nodes);
+    this.weights_ih.randomize();
+    this.weights_ho.randomize();
 
-      this.bias_h = a.bias_h.copy();
-      this.bias_o = a.bias_o.copy();
-    } else {
-      this.input_nodes = in_nodes;
-      this.hidden_nodes = hid_nodes;
-      this.output_nodes = out_nodes;
+    this.bias_h = new Matrix(this.hidden_nodes, 1);
+    this.bias_o = new Matrix(this.output_nodes, 1);
+    this.bias_h.randomize();
+    this.bias_o.randomize();
+    this.setLearningRate(learn_rate);
 
-      this.weights_ih = new Matrix(this.hidden_nodes, this.input_nodes);
-      this.weights_ho = new Matrix(this.output_nodes, this.hidden_nodes);
-      this.weights_ih.randomize();
-      this.weights_ho.randomize();
-
-      this.bias_h = new Matrix(this.hidden_nodes, 1);
-      this.bias_o = new Matrix(this.output_nodes, 1);
-      this.bias_h.randomize();
-      this.bias_o.randomize();
-    }
-
-    // TODO: copy these as well
-    this.setLearningRate();
     this.setActivationFunction();
-
 
   }
 
@@ -76,7 +79,7 @@ class NeuralNetwork {
     return output.toArray();
   }
 
-  setLearningRate(learning_rate = 0.1) {
+  setLearningRate(learning_rate) {
     this.learning_rate = learning_rate;
   }
 
@@ -147,7 +150,8 @@ class NeuralNetwork {
   }
 
   static deserialize(data) {
-    if (typeof data == 'string') {
+    if(typeof data == 'string')
+    {
       data = JSON.parse(data);
     }
     let nn = new NeuralNetwork(data.input_nodes, data.hidden_nodes, data.output_nodes);
@@ -158,21 +162,5 @@ class NeuralNetwork {
     nn.learning_rate = data.learning_rate;
     return nn;
   }
-
-
-  // Adding function for neuro-evolution
-  copy() {
-    return new NeuralNetwork(this);
-  }
-
-  // Accept an arbitrary function for mutation
-  mutate(func) {
-    this.weights_ih.map(func);
-    this.weights_ho.map(func);
-    this.bias_h.map(func);
-    this.bias_o.map(func);
-  }
-
-
 
 }
